@@ -20,6 +20,7 @@
  */
 
 namespace Converter {
+    [Compact (opaque = true)]
     class FishHistoryItem {
         StringBuilder cmd_builder;
         string time;
@@ -37,7 +38,7 @@ namespace Converter {
         }
 
         public void add_cmd_line (string cmd) {
-            
+            cmd_builder.append ("\\n%s".printf (cmd));
         }
     }
-} 
+}

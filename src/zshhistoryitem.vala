@@ -20,6 +20,7 @@
  */
 
 namespace Converter {
+    [Compact (opaque = true)]
     class ZshHistoryItem {
         StringBuilder builder;
         string val;

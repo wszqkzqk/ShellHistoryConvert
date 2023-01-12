@@ -32,12 +32,16 @@ namespace Converter {
             }
         }
 
-        public FishHistoryItem (string time, string cmd) {
+        public FishHistoryItem (string time, string? cmd = null) {
             this.time = time;
-            cmd_builder = new StringBuilder ();
+            if (cmd == null) {
+                cmd_builder = new StringBuilder ();
+            } else {
+                cmd_builder = new StringBuilder ();
+            }
         }
 
-        public void add_cmd_line (string cmd) {
+        public void add_cmd (string cmd) {
             cmd_builder.append ("\\n%s".printf (cmd));
         }
     }

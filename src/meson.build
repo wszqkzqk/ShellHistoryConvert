@@ -1,16 +1,17 @@
-shellhistoryconvert_sources = [
+basic_sources = [
   'main.vala',
   'historyconverter.vala',
   'zshhistoryitem.vala',
-  'fishhistoryitem.vala'
+  'fishhistoryitem.vala',
+  'bashhistoryitem.vala'
 ]
 
-shellhistoryconvert_deps = [
+basic_deps = [
   glib,
   gobject,
   gio
 ]
 
-executable('shell-history-convert', shellhistoryconvert_sources,
-  dependencies: shellhistoryconvert_deps, install: true,
+executable('shell-history-convert', basic_sources,
+  dependencies: basic_deps, install: true,
 )

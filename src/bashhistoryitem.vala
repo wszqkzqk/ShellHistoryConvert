@@ -1,4 +1,4 @@
-/* zshhistoryitem.vala
+/* bashhistoryitem.vala
  *
  * Copyright 2023 周 乾康 <wszqkzqk@stu.pku.edu.cn>
  *
@@ -21,7 +21,7 @@
 
 namespace Converter {
     [Compact (opaque = true)]
-    class ZshHistoryItem {
+    class BashHistoryItem {
         StringBuilder builder;
         string val;
         public string content {
@@ -31,17 +31,16 @@ namespace Converter {
             }
         }
 
-        public ZshHistoryItem (string time, string? cmd = null) {
+        public BashHistoryItem (string? cmd = null) {
             if (cmd == null) {
-                builder = new StringBuilder (": %s:0;".printf (time));
+                builder = new StringBuilder ();
             } else {
-                builder = new StringBuilder (": %s:0;%s".printf (time, cmd));
+                builder = new StringBuilder (cmd);
             }
         }
 
         public void add_cmd (string cmd) {
-            builder.append_c ('\\');
-            builder.append_c ('\n');
+            builder.append ("; ");
             builder.append (cmd);
         }
     }

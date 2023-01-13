@@ -31,28 +31,28 @@ namespace Converter {
     public Status convert (string output_type, string source_type,
                          string output_path, string source_path,
                          string mode = "a") throws ConvertError {
-        HistoryEntry[] history_items;
+        GenericArray<HistoryEntry?> history_items;
         Status status = {0, 0};
         switch (source_type.down ()) {
         case "fish":
         case "f":
             source_type = "fish";
             var parser = new FishParser (source_path);
-            history_items = parser.parse ();
+            parser.parse (out history_items);
             status = parser.status;
             break;
         case "zsh":
         case "z":
             source_type = "zsh";
             var parser = new ZshOrBashParser (source_path);
-            history_items = parser.parse ();
+            parser.parse (out history_items);
             status = parser.status;
             break;
         case "bash":
         case "b":
             source_type = "bash";
             var parser = new ZshOrBashParser (source_path);
-            history_items = parser.parse ();
+            parser.parse (out history_items);
             status = parser.status;
             break;
         default:

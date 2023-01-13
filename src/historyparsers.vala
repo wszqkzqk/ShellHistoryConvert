@@ -82,20 +82,16 @@ namespace Converter {
         }
     }
 
-    [Compact (opaque = true)]
-    class FishParser {
-        uint success = 0;
-        uint failure = 0;
-        static Regex? cmd_re = null;
-        static Regex? time_re = null;
-        HistoryEntry[] history_items;
-        string? source_path;
-        FileStream source_file;
+    public abstract class BasicParser {
+        protected uint success = 0;
+        protected uint failure = 0;
+        protected string? source_path;
+        protected FileStream source_file;
         public string? source {
             get {
                 return source_path;
             }
-            private set {
+            protected set {
                 source_file = FileStream.open (value, "r");
                 if (source_file == null) {
                     critical ("Failed to open the input file.");
@@ -111,6 +107,13 @@ namespace Converter {
             }
         }
 
+        public abstract void parse (out GenericArray<HistoryEntry?> history_items) throws ConvertError;
+    }
+
+    class FishParser: BasicParser {
+        static Regex? cmd_re = null;
+        static Regex? time_re = null;
+
         public FishParser (string source) {
             if (cmd_re == null) {
                 cmd_re = /^- cmd: (.*)/;
@@ -121,12 +124,12 @@ namespace Converter {
             this.source = source;
         }
 
-        public HistoryEntry[] parse () throws ConvertError {
+        public override void parse (out GenericArray<HistoryEntry?> history_items) throws ConvertError {
             if (source_file == null) {
                 throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is not set or does not exist.");
             }
             source_file.rewind ();
-            history_items = {};
+            history_items = new GenericArray<HistoryEntry?> ();
             string? line = null;
             string? time = null;
             while ((line = source_file.read_line ()) != null) {
@@ -144,77 +147,50 @@ namespace Converter {
                         time = (get_real_time () / 1000000).to_string ();
                     }
                     HistoryEntry h_item = {time, cmd_list};
-                    history_items += h_item;
+                    history_items.add (h_item);
                 }
             }
             if (unlikely (source_file.error () != 0)) {
                 source_file.clearerr ();
                 throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is unaccessible.");
             }
-            return history_items;
         }
     }
 
-    [Compact (opaque = true)]
-    class ZshOrBashParser {
-        uint success = 0;
-        uint failure = 0;
+    class ZshOrBashParser: BasicParser {
         static Regex? his_re = null;
         static Regex? multiline_re = null;
-        HistoryEntry[] history_items;
-        string? source_path;
-        FileStream source_file;
-        public string? source {
-            get {
-                return source_path;
-            }
-            private set {
-                source_file = FileStream.open (value, "r");
-                if (source_file == null) {
-                    critical ("Failed to open the input file.");
-                    source_path = null;
-                } else {
-                    source_path = value;
-                }
-            }
-        }
-        public Status status {
-            get {
-                return {success, failure};
-            }
-        }
 
         public ZshOrBashParser (string source) {
             if (his_re == null) {
                 his_re = /^: (?<time>\d*):\d*;(?<cmd>.*?)(?<backslashs>\\*?)$/;
             }
             if (multiline_re == null) {
-                multiline_re = /^(?<cmd>.*?)(?<backslashs>\\*?)&/;
+                multiline_re = /^(?<cmd>.*?)(?<backslashs>\\*?)$/;
             }
             this.source = source;
         }
 
-        public HistoryEntry[] parse () throws ConvertError {
+        public override void parse (out GenericArray<HistoryEntry?> history_items) throws ConvertError {
             if (source_file == null) {
                 throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is not set or does not exist.");
             }
             source_file.rewind ();
             string? line;
             string? time = null;
-            history_items = {};
+            history_items = new GenericArray<HistoryEntry?> ();
             string[] cmd_list = {};
             bool in_multiline_cmd = false;
             while ((line = source_file.read_line ()) != null) {
                 MatchInfo history_match;
                 MatchInfo multiline_match;
                 if (his_re.match (line, 0, out history_match)) {
-                    success += 1;
                     if (unlikely (in_multiline_cmd)) {
                         // Error in zsh history:
                         // The last line ends with `\` but the nex line is a new history item
                         // Save the item first
                         HistoryEntry h_item = {time, cmd_list};
-                        history_items += h_item;
+                        history_items.add (h_item);
                         in_multiline_cmd = false;
                     }
                     
@@ -260,15 +236,15 @@ namespace Converter {
 
                 if (!in_multiline_cmd) {
                     // Completed, store the result
+                    success += 1;
                     HistoryEntry h_item = {time, cmd_list};
-                    history_items += h_item;
+                    history_items.add (h_item);
                 }
             }
             if (unlikely (source_file.error () != 0)) {
                 source_file.clearerr ();
                 throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is unaccessible.");
             }
-            return history_items;
         }
     }
 }

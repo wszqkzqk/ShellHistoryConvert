@@ -103,10 +103,10 @@ namespace Converter {
                 }
                 char buf[8192];
                 if (file.gets (buf) != null) {
-                    if ((/^: \d*:\d*;.*/m).match ((string) buf)) {
+                    if ((/^: \d*:\d*;/m).match ((string) buf)) {
                         // zsh
                         source_type = "zsh";
-                    } else if ((/^- cmd: (.*)/m).match ((string) buf)) {
+                    } else if ((/^- cmd:/m).match ((string) buf)) {
                         // fish
                         source_type = "fsh";
                     } else {

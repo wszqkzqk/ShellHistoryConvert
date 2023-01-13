@@ -28,28 +28,32 @@ namespace Converter {
         OUTPUT_FILE_ACCESS
     }
 
-    public void convert (string output_type, string source_type,
+    public Status convert (string output_type, string source_type,
                          string output_path, string source_path,
                          string mode = "a") throws ConvertError {
-        HistoryItem[] history_items;
+        HistoryEntry[] history_items;
+        Status status = {0, 0};
         switch (source_type.down ()) {
         case "fish":
         case "f":
             source_type = "fish";
             var parser = new FishParser (source_path);
             history_items = parser.parse ();
+            status = parser.status;
             break;
         case "zsh":
         case "z":
             source_type = "zsh";
             var parser = new ZshOrBashParser (source_path);
             history_items = parser.parse ();
+            status = parser.status;
             break;
         case "bash":
         case "b":
             source_type = "bash";
             var parser = new ZshOrBashParser (source_path);
             history_items = parser.parse ();
+            status = parser.status;
             break;
         default:
             throw new ConvertError.OPERATOR_ERROR ("Only bash, zsh, fish are supported now.");
@@ -86,5 +90,7 @@ namespace Converter {
             output_file.clearerr ();
             throw new ConvertError.OUTPUT_FILE_ACCESS ("Cannot write to the output path.");
         }
+
+        return status;
     }
 }

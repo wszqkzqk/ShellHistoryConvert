@@ -144,11 +144,13 @@ namespace Converter {
             }
 
             try {
-                convert (
+                var status = convert (
                     output_type, source_type,
                     output_path, source_path,
                     mode
                 );
+                print (status.to_string ());
+                print ("The history convertion from %s to %s is done!\n", source_type, output_type);
             } catch (ConvertError e) {
                 printerr ("error: %s", e.message);
                 return 1;

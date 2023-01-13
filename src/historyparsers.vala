@@ -20,7 +20,16 @@
  */
 
 namespace Converter {
-    struct HistoryItem {
+    public struct Status {
+        uint success;
+        uint failure;
+
+        public string to_string () {
+            return "Totla entries: %u\nSuccess: %u\nFailure: %u\n".printf (success+failure, success, failure);
+        }
+    }
+
+    public struct HistoryEntry {
         string time;
         string[] cmd_list;
 
@@ -75,9 +84,11 @@ namespace Converter {
 
     [Compact (opaque = true)]
     class FishParser {
+        uint success = 0;
+        uint failure = 0;
         static Regex? cmd_re = null;
         static Regex? time_re = null;
-        HistoryItem[] history_items;
+        HistoryEntry[] history_items;
         string? source_path;
         FileStream source_file;
         public string? source {
@@ -92,6 +103,11 @@ namespace Converter {
                 } else {
                     source_path = value;
                 }
+            }
+        }
+        public Status status {
+            get {
+                return {success, failure};
             }
         }
 
@@ -105,7 +121,7 @@ namespace Converter {
             this.source = source;
         }
 
-        public HistoryItem[] parse () throws ConvertError {
+        public HistoryEntry[] parse () throws ConvertError {
             if (source_file == null) {
                 throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is not set or does not exist.");
             }
@@ -117,6 +133,7 @@ namespace Converter {
                 MatchInfo cmd_match;
                 MatchInfo time_match;
                 if (cmd_re.match (line, 0, out cmd_match)) {
+                    success += 1;
                     var cmd_list = ((cmd_match.fetch (1)).compress ()).split ("\n");
                     if (likely ((line = source_file.read_line ()) != null)) {
                         if (time_re.match (line, 0, out time_match)) {
@@ -126,7 +143,7 @@ namespace Converter {
                     if (unlikely (time == null)) {
                         time = (get_real_time () / 1000000).to_string ();
                     }
-                    HistoryItem h_item = {time, cmd_list};
+                    HistoryEntry h_item = {time, cmd_list};
                     history_items += h_item;
                 }
             }
@@ -140,9 +157,11 @@ namespace Converter {
 
     [Compact (opaque = true)]
     class ZshOrBashParser {
+        uint success = 0;
+        uint failure = 0;
         static Regex? his_re = null;
         static Regex? multiline_re = null;
-        HistoryItem[] history_items;
+        HistoryEntry[] history_items;
         string? source_path;
         FileStream source_file;
         public string? source {
@@ -159,6 +178,11 @@ namespace Converter {
                 }
             }
         }
+        public Status status {
+            get {
+                return {success, failure};
+            }
+        }
 
         public ZshOrBashParser (string source) {
             if (his_re == null) {
@@ -170,7 +194,7 @@ namespace Converter {
             this.source = source;
         }
 
-        public HistoryItem[] parse () throws ConvertError {
+        public HistoryEntry[] parse () throws ConvertError {
             if (source_file == null) {
                 throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is not set or does not exist.");
             }
@@ -184,11 +208,12 @@ namespace Converter {
                 MatchInfo history_match;
                 MatchInfo multiline_match;
                 if (his_re.match (line, 0, out history_match)) {
+                    success += 1;
                     if (unlikely (in_multiline_cmd)) {
                         // Error in zsh history:
                         // The last line ends with `\` but the nex line is a new history item
                         // Save the item first
-                        HistoryItem h_item = {time, cmd_list};
+                        HistoryEntry h_item = {time, cmd_list};
                         history_items += h_item;
                         in_multiline_cmd = false;
                     }
@@ -218,6 +243,7 @@ namespace Converter {
                     var backslashs = multiline_match.fetch_named ("backslashs");
                     var cmd = multiline_match.fetch_named ("cmd");
                     if (cmd == null) {
+                        failure += 1;
                         continue;
                     }
                     if (backslashs == null || backslashs.length == 0) {
@@ -234,7 +260,7 @@ namespace Converter {
 
                 if (!in_multiline_cmd) {
                     // Completed, store the result
-                    HistoryItem h_item = {time, cmd_list};
+                    HistoryEntry h_item = {time, cmd_list};
                     history_items += h_item;
                 }
             }

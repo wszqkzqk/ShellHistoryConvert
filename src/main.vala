@@ -20,8 +20,9 @@
  */
 
 namespace Converter {
+    [Compact (opaque = true)]
     class CLI {
-        const string VERSION = "0.0.1";
+        const string VERSION = "0.1.0";
 
         static bool show_version = false;
         static string? source_path = null;
@@ -138,16 +139,16 @@ namespace Converter {
                         break;
                     }
                 }
+            } else {
+                mode = "a";
             }
 
             try {
-                var converter = new HistoryConverter (
-                    HistoryConverter.HistoryType.parse (output_type),
-                    HistoryConverter.HistoryType.parse (source_type),
+                convert (
+                    output_type, source_type,
                     output_path, source_path,
                     mode
                 );
-                converter.run ();
             } catch (ConvertError e) {
                 printerr ("error: %s", e.message);
                 return 1;

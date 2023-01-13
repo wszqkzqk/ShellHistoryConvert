@@ -1,9 +1,7 @@
 basic_sources = [
   'main.vala',
   'historyconverter.vala',
-  'zshhistoryitem.vala',
-  'fishhistoryitem.vala',
-  'bashhistoryitem.vala'
+  'historyparsers.vala',
 ]
 
 basic_deps = [

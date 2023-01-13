@@ -1,8 +1,8 @@
-# Shell History Concert
+# Shell History Convert
 
 ## Introduction
 
-`Shell History Concert` is a tool to convert shell history between bash, zsh and fish. It's written in vala.
+`Shell History Convert` is a tool to convert shell history between bash, zsh and fish. It's written in vala.
 
 ## Usage
 

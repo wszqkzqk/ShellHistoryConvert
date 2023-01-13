@@ -64,19 +64,19 @@ namespace Converter {
                     switch (source_type.down ()) {
                     case "fish":
                     case "f":
-                        source_path = build_path ("~", ".local", "share", "fish", "fish_history");
+                        source_path = Path.build_path (Path.DIR_SEPARATOR_S, Environment.get_user_data_dir (), "fish", "fish_history");
                         break;
                     case "zsh":
                     case "z":
-                        source_path = build_path ("~", ".zsh_history");
+                        source_path = Path.build_path (Path.DIR_SEPARATOR_S, Environment.get_home_dir (), ".zsh_history");
                         FileStream? zsh_history = FileStream.open (source_path, "r");
                         if (zsh_history == null) {
-                            source_path = build_path ("~", ".zhistory");
+                            source_path = Path.build_path (Path.DIR_SEPARATOR_S, Environment.get_home_dir (), ".zhistory");
                         }
                         break;
                     case "bash":
                     case "b":
-                        source_path = build_path ("~", ".bash_history");
+                        source_path = Path.build_path (Path.DIR_SEPARATOR_S, Environment.get_home_dir (), ".bash_history");
                         break;
                     default:
                         printerr ("error: Only bash, zsh, fish are supported now.");
@@ -154,10 +154,6 @@ namespace Converter {
             }
 
             return 0;
-        }
-
-        static string build_path (string root, ...) {
-            return Path.build_path (Path.DIR_SEPARATOR_S, root, va_list ());
         }
     }
 }

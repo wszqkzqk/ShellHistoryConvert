@@ -31,14 +31,14 @@ namespace Converter {
     public class HistoryConverter: Object {
         HistoryType source_type;
         HistoryType output_type;
-        string source_path;
-        string output_path;
+        string? source_path;
+        string? output_path;
         FileStream source_file;
         FileStream output_file;
         HistoryItem[] history_items;
         public string mode;
 
-        public string source {
+        public string? source {
             get {
                 return source_path;
             }
@@ -47,7 +47,7 @@ namespace Converter {
                 source_path = (source_file != null) ? value : null;
             }
         }
-        public string output {
+        public string? output {
             get {
                 return output_path;
             }
@@ -133,8 +133,7 @@ does not exist.");
 
         void parse_zsh_or_bash () throws ConvertError {
             if (source_file == null) {
-                throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is not set or 
-does not exist.");
+                throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is not set or does not exist.");
             }
 
             var his_re = /^: (?<time>\d*):\d*;(?<cmd>.*?)(?<backslashs>\\*?)$/;

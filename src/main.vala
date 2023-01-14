@@ -22,8 +22,6 @@
 namespace Converter {
     [Compact (opaque = true)]
     class CLI {
-        const string VERSION = "0.1.0";
-
         static bool show_version = false;
         static string? source_path = null;
         static string? output_path = null;

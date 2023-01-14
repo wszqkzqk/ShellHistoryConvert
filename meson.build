@@ -1,5 +1,5 @@
 project('ShellHistoryConvert', ['c', 'vala'],
-          version: '0.1.1',
+          version: run_command('git', 'describe', '--tags').stdout().strip(),
     meson_version: '>= 0.59.0',
   default_options: [ 'warning_level=2', 'werror=false', ],
 )

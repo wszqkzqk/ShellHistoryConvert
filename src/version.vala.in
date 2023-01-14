@@ -20,5 +20,5 @@
  */
 
 namespace Converter {
-    const string VERSION = "@version@";
+    const string VERSION = "@VCS_TAG@";
 }

@@ -1,6 +1,6 @@
 /* historyconverter.vala
  *
- * Copyright 2023 周 乾康 <wszqkzqk@stu.pku.edu.cn>
+ * Copyright 2023 周 乾康 <wszqkzqk@qq.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ namespace Converter {
     public Status convert (string output_type, string source_type,
                          string output_path, string source_path,
                          string mode = "a") throws ConvertError {
-        GenericArray<HistoryEntry?> history_items;
+        HistoryEntry[] history_items;
         Status status = {0, 0};
         switch (source_type.down ()) {
         case "fish":

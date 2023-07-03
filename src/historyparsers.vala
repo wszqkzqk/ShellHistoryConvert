@@ -1,6 +1,6 @@
 /* historyparsers.vala
  *
- * Copyright 2023 周 乾康 <wszqkzqk@stu.pku.edu.cn>
+ * Copyright 2023 周 乾康 <wszqkzqk@qq.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,7 +107,7 @@ namespace Converter {
             }
         }
 
-        public abstract void parse (out GenericArray<HistoryEntry?> history_items) throws ConvertError;
+        public abstract void parse (out HistoryEntry[] history_items) throws ConvertError;
     }
 
     class FishParser: BasicParser {
@@ -124,12 +124,12 @@ namespace Converter {
             this.source = source;
         }
 
-        public override void parse (out GenericArray<HistoryEntry?> history_items) throws ConvertError {
+        public override void parse (out HistoryEntry[] history_items) throws ConvertError {
             if (source_file == null) {
                 throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is not set or does not exist.");
             }
             source_file.rewind ();
-            history_items = new GenericArray<HistoryEntry?> ();
+            var history_array = new GenericArray<HistoryEntry?> ();
             string? line = null;
             string? time = null;
             while ((line = source_file.read_line ()) != null) {
@@ -147,13 +147,14 @@ namespace Converter {
                         time = (get_real_time () / 1000000).to_string ();
                     }
                     HistoryEntry h_item = {time, cmd_list};
-                    history_items.add (h_item);
+                    history_array.add (h_item);
                 }
             }
             if (unlikely (source_file.error () != 0)) {
                 source_file.clearerr ();
                 throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is unaccessible.");
             }
+            history_items = (HistoryEntry[]) history_array.data;
         }
     }
 
@@ -171,14 +172,14 @@ namespace Converter {
             this.source = source;
         }
 
-        public override void parse (out GenericArray<HistoryEntry?> history_items) throws ConvertError {
+        public override void parse (out HistoryEntry[] history_items) throws ConvertError {
             if (source_file == null) {
                 throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is not set or does not exist.");
             }
             source_file.rewind ();
             string? line;
             string? time = null;
-            history_items = new GenericArray<HistoryEntry?> ();
+            var history_array = new GenericArray<HistoryEntry?> ();
             string[] cmd_list = {};
             bool in_multiline_cmd = false;
             while ((line = source_file.read_line ()) != null) {
@@ -190,7 +191,7 @@ namespace Converter {
                         // The last line ends with `\` but the nex line is a new history item
                         // Save the item first
                         HistoryEntry h_item = {time, cmd_list};
-                        history_items.add (h_item);
+                        history_array.add (h_item);
                         in_multiline_cmd = false;
                     }
                     
@@ -238,13 +239,14 @@ namespace Converter {
                     // Completed, store the result
                     success += 1;
                     HistoryEntry h_item = {time, cmd_list};
-                    history_items.add (h_item);
+                    history_array.add (h_item);
                 }
             }
             if (unlikely (source_file.error () != 0)) {
                 source_file.clearerr ();
                 throw new ConvertError.NO_LEGAL_SOURCE_FILE ("The source file is unaccessible.");
             }
+            history_items = (HistoryEntry[]) history_array.data;
         }
     }
 }
